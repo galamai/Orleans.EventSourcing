@@ -3,9 +3,38 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{20EEC63F-A982-43DC-AC96-EFBDF2C05B82}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orleans.EventSourcing", "src\Orleans.EventSourcing\Orleans.EventSourcing.csproj", "{421539A5-F9B3-4561-A4A6-AE433AAE221B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orleans.EventSourcing.AzureStorage", "src\Orleans.EventSourcing.AzureStorage\Orleans.EventSourcing.AzureStorage.csproj", "{65494D0D-A279-4384-8BB8-6E843F92D29C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{02234E62-CE7C-4848-A3F1-9BBD1B2761E6}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet.Config = NuGet.Config
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{421539A5-F9B3-4561-A4A6-AE433AAE221B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{421539A5-F9B3-4561-A4A6-AE433AAE221B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{421539A5-F9B3-4561-A4A6-AE433AAE221B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{421539A5-F9B3-4561-A4A6-AE433AAE221B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65494D0D-A279-4384-8BB8-6E843F92D29C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65494D0D-A279-4384-8BB8-6E843F92D29C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65494D0D-A279-4384-8BB8-6E843F92D29C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65494D0D-A279-4384-8BB8-6E843F92D29C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{421539A5-F9B3-4561-A4A6-AE433AAE221B} = {20EEC63F-A982-43DC-AC96-EFBDF2C05B82}
+		{65494D0D-A279-4384-8BB8-6E843F92D29C} = {20EEC63F-A982-43DC-AC96-EFBDF2C05B82}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E36182CB-7FF4-42E5-B14A-5053A3004376}

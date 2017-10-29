@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Galamai.Orleans.EventSourcing</PackageId>
+    <Version>0.0.1</Version>
+    <Description>Eventsourced grain.</Description>
+    <Copyright>Ievgen Galamai</Copyright>
+    <PackageProjectUrl>https://github.com/galamai/Orleans.EventSourcing</PackageProjectUrl>
+    <Authors>Ievgen Galamai</Authors>
+    <Company>Ievgen Galamai</Company>
+    <Product>Orleans.EventSourcing</Product>
+    <PackageLicenseUrl>https://github.com/galamai/Orleans.EventSourcing/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/galamai/Orleans.EventSourcing</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="2.0.0-preview4-20171025" />
+  </ItemGroup>
+
+</Project>

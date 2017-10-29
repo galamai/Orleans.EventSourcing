@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Galamai.Orleans.EventSourcing.AzureStorage</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Ievgen Galamai</Authors>
+    <Company>Ievgen Galamai</Company>
+    <Description>Azure storage implementations for eventsourced grain.</Description>
+    <Copyright>Ievgen Galamai</Copyright>
+    <PackageLicenseUrl>https://github.com/galamai/Orleans.EventSourcing/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/galamai/Orleans.EventSourcing</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/galamai/Orleans.EventSourcing</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WindowsAzure.Storage" Version="8.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Orleans.EventSourcing\Orleans.EventSourcing.csproj" />
+  </ItemGroup>
+
+</Project>
