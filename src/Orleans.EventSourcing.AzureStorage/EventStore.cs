@@ -52,7 +52,7 @@ namespace Orleans.EventSourcing.AzureStorage
             foreach (var storableEvent in evetList)
             {
                 var rowKey = GetRowKey(storableEvent.Version);
-                var type = storableEvent.Payload.GetType().Name;
+                var type = storableEvent.Type;
 
                 batch.Add(TableOperation.Insert(new EventTableEntity(storableEvent.Payload)
                 {
