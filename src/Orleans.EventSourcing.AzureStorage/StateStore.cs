@@ -19,37 +19,40 @@ namespace Orleans.EventSourcing.AzureStorage
 
         private CloudBlobContainer _container;
 
-        public StateStore(string connectionString, string containerName)
+        public string Name { get; }
+
+        public StateStore(string name, string connectionString, string containerName)
         {
-            _connectionString = connectionString;
-            _containerName = containerName;
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            _containerName = containerName ?? throw new ArgumentNullException(nameof(containerName));
         }
 
-        public async Task<(TState state, long version)> ReadAsync<TState>(string key)
+        public async Task<StorableState> ReadAsync(string key)
         {
             var blob = await GetBlockBlobReferenceAsync(key).ConfigureAwait(false);
 
             try
             {
                 var json = await blob.DownloadTextAsync().ConfigureAwait(false);
-                return JsonConvert.DeserializeObject<(TState state, uint version)>(json);
+                return JsonConvert.DeserializeObject<StorableState>(json);
             }
             catch (StorageException ex) when (
                 ex.RequestInformation.HttpStatusCode == 404 &&
                 ex.RequestInformation.ExtendedErrorInformation.ErrorCode == "BlobNotFound")
             {
-                return (default(TState), default(uint));
+                return null;
             }
             catch (SerializationException)
             {
-                return (default(TState), default(uint));
+                return null;
             }
         }
 
-        public async Task WriteAsync<TState>(string key, (TState state, long version) serialState)
+        public async Task WriteAsync(string key, StorableState storableState)
         {
             var blob = await GetBlockBlobReferenceAsync(key).ConfigureAwait(false);
-            var json = JsonConvert.SerializeObject(serialState);
+            var json = JsonConvert.SerializeObject(storableState);
             await blob.UploadTextAsync(json).ConfigureAwait(false);
         }
 

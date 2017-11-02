@@ -7,7 +7,8 @@ namespace Orleans.EventSourcing
 {
     public interface IStateStore
     {
-        Task<(TState state, long version)> ReadAsync<TState>(string key);
-        Task WriteAsync<TState>(string key, (TState state, long version) versionedState);
+        string Name { get; }
+        Task<StorableState> ReadAsync(string key);
+        Task WriteAsync(string key, StorableState storableState);
     }
 }

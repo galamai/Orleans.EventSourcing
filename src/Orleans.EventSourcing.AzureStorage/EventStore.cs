@@ -17,19 +17,17 @@ namespace Orleans.EventSourcing.AzureStorage
         private const string UnpublishedRowKeyPrefixUpperLimit = "Unpublished`";
 
         private readonly static SemaphoreSlim _syncLock = new SemaphoreSlim(1);
-        private readonly static JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.All,
-            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-        };
 
         private readonly string _connectionString;
         private readonly string _tableName;
 
         private CloudTable _table;
 
-        public EventStore(string connectionString, string tableName)
+        public string Name { get; }
+
+        public EventStore(string name, string connectionString, string tableName)
         {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             _tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
         }
@@ -54,21 +52,18 @@ namespace Orleans.EventSourcing.AzureStorage
             foreach (var storableEvent in evetList)
             {
                 var rowKey = GetRowKey(storableEvent.Version);
-                var payload = JsonConvert.SerializeObject(storableEvent.Event, _jsonSettings);
-                var type = storableEvent.Event.GetType().Name;
+                var type = storableEvent.Payload.GetType().Name;
 
-                batch.Add(TableOperation.Insert(new EventTableEntity()
+                batch.Add(TableOperation.Insert(new EventTableEntity(storableEvent.Payload)
                 {
                     PartitionKey = key,
                     RowKey = rowKey,
-                    Payload = payload,
                     Type = type
                 }));
-                batch.Add(TableOperation.Insert(new EventTableEntity()
+                batch.Add(TableOperation.Insert(new EventTableEntity(storableEvent.Payload)
                 {
                     PartitionKey = key,
                     RowKey = UnpublishedRowKeyPrefix + rowKey,
-                    Payload = payload,
                     Type = type
                 }));
             }
@@ -76,19 +71,19 @@ namespace Orleans.EventSourcing.AzureStorage
             await _table.ExecuteBatchAsync(batch).ConfigureAwait(false);
         }
 
-        public async Task DeletePublishedAsync(string key, IEnumerable<StorableEvent> eventList)
+        public async Task DeletePublishedAsync(string key, IEnumerable<long> versionList)
         {
             if (_table == null)
                 await InitTableReferenceAsync();
 
             var batch = new TableBatchOperation();
 
-            foreach (var storableEvent in eventList)
+            foreach (var version in versionList)
             {
                 batch.Add(TableOperation.Delete(new TableEntity()
                 {
                     PartitionKey = key,
-                    RowKey = UnpublishedRowKeyPrefix + GetRowKey(storableEvent.Version),
+                    RowKey = UnpublishedRowKeyPrefix + GetRowKey(version),
                     ETag = "*"
                 }));
             }
@@ -109,7 +104,8 @@ namespace Orleans.EventSourcing.AzureStorage
                     .Select(x =>
                         new StorableEvent(
                             version: uint.Parse(x.RowKey),
-                            @event: JsonConvert.DeserializeObject<IEvent>(x.Payload, _jsonSettings)))
+                            type: x.Type,
+                            payload: x.GetData()))
                     .ToList(),
             tableQueryResult.ContinuationToken != null);
         }
