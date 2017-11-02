@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Orleans.EventSourcing
 {
+    [Serializable]
     public class VersionedEvent
     {
         public long Version { get; }

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Galamai.Orleans.EventSourcing</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.2.1</Version>
     <Description>Eventsourced grain.</Description>
     <Copyright>Ievgen Galamai</Copyright>
     <PackageProjectUrl>https://github.com/galamai/Orleans.EventSourcing</PackageProjectUrl>
