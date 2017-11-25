@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Galamai.Orleans.EventSourcing.AzureStorage</PackageId>
-    <Version>0.0.2.1</Version>
+    <Version>0.0.3</Version>
     <Authors>Ievgen Galamai</Authors>
     <Company>Ievgen Galamai</Company>
     <Description>Azure storage implementations for eventsourced grain.</Description>
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="WindowsAzure.Storage" Version="8.5.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.6.0" />
   </ItemGroup>
 
   <ItemGroup>

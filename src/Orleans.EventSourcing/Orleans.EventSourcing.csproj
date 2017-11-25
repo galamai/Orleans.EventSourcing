@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>Galamai.Orleans.EventSourcing</PackageId>
-    <Version>0.0.2.1</Version>
+    <Version>0.0.3</Version>
     <Description>Eventsourced grain.</Description>
     <Copyright>Ievgen Galamai</Copyright>
     <PackageProjectUrl>https://github.com/galamai/Orleans.EventSourcing</PackageProjectUrl>
@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="2.0.0-preview4-20171025" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="2.0.0-beta1" />
   </ItemGroup>
 
 </Project>
