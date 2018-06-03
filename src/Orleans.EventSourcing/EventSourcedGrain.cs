@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Reflection;
 using Orleans.Streams;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Orleans.EventSourcing
 {
@@ -13,48 +14,50 @@ namespace Orleans.EventSourcing
     {
         private const byte DefaultSaveStateStep = 100;
 
-        private readonly Reducer<TState> _reducer;
-        private readonly IEventStore _eventStore;
-        private readonly IStateStore _stateStore;
-        private readonly IDataSerializer _dataSerializer;
         private readonly List<VersionedEvent> _uncommitedEvents = new List<VersionedEvent>();
 
         private string _key;
+        private Reducer<TState> _reducer;
+        private IStoreProvider _storeProvider;
+        private IEventStore _eventStore;
+        private IStateStore _stateStore;
+        private IDataSerializer _dataSerializer;
         private IAsyncStream<VersionedEvent> _eventStream;
 
-        protected byte SaveStateStep { get; set; } = DefaultSaveStateStep;
-        protected string EventStoreName { get; set; } = "Default";
-        protected string StateStoreName { get; set; } = "Default";
-        protected string DataSerializerName { get; set; } = "Default";
+        protected uint SaveStateStep { get; set; } = DefaultSaveStateStep;
+        protected bool PublishEventOnStream { get; set; } = true;
+        protected bool SaveState { get; set; } = true;
+        protected string EventStoreName { get; set; } = Constants.DefaultEventStoreName;
+        protected string StateStoreName { get; set; } = Constants.DefaultStateStoreName;
+        protected string DataSerializerName { get; set; } = Constants.DefaultDataSerializerName;
+        protected string StreamProviderName { get; set; } = Constants.DefaultStreamProviderName;
         protected TState State { get; private set; }
         protected long Version { get; private set; } = -1;
 
-
-        public EventSourcedGrain(
-            Reducer<TState> reducer,
-            IStoreProvider storeProvider,
+        protected EventSourcedGrain(
+            Reducer<TState> reducer = null,
+            IStoreProvider storeProvider = null,
             TState initialState = null)
         {
-            if (storeProvider == null)
-                throw new ArgumentNullException(nameof(storeProvider));
-
-            _reducer = reducer;
-            _eventStore = storeProvider.GetEventStore(EventStoreName);
-            _stateStore = storeProvider.GetStateStore(StateStoreName);
-            _dataSerializer = storeProvider.GetSerializer(DataSerializerName);
+            _reducer = reducer ?? Reducer.Reduce;
             State = initialState;
+            _storeProvider = storeProvider;
         }
 
         public override async Task OnActivateAsync()
         {
             _key = GetKey();
-            _eventStream = GetStreamProvider("Default").GetStream<VersionedEvent>(this.GetPrimaryKey(), "Events");
+            _storeProvider = _storeProvider ?? ServiceProvider.GetRequiredService<IStoreProvider>();
+            _eventStore = _storeProvider.GetEventStore(EventStoreName);
+            _stateStore = _storeProvider.GetStateStore(StateStoreName);
+            _dataSerializer = _storeProvider.GetSerializer(DataSerializerName);
+            _eventStream = GetStreamProvider(StreamProviderName)
+                .GetStream<VersionedEvent>(this.GetPrimaryKey(), Constants.EventStreamNamespace);
 
             await Task.WhenAll(
                 PublishUnpublishedEventsAsync(),
                 ReadStateAsync(),
                 base.OnActivateAsync());
-
         }
 
         protected void RaiseEvent(IEvent e)
@@ -72,7 +75,8 @@ namespace Orleans.EventSourcing
             await _eventStore.WriteAsync(_key, _uncommitedEvents.Select(ToStorableEvent));
             await PublishUnpublishedEventsAsync(_uncommitedEvents);
 
-            if (Version >= SaveStateStep &&
+            if (SaveState &&
+                Version >= SaveStateStep &&
                 Version % SaveStateStep - _uncommitedEvents.Count < 0)
             {
                 await _stateStore.WriteAsync(_key, new StorableState(Version, State.GetType().Name, _dataSerializer.Serialize(State)));
@@ -83,7 +87,7 @@ namespace Orleans.EventSourcing
 
         private async Task ReadStateAsync()
         {
-            var storableState = await _stateStore.ReadAsync(_key);
+            var storableState = SaveState ? await _stateStore.ReadAsync(_key) : null;
             if (storableState != null)
             {
                 Version = storableState.Version;
@@ -120,7 +124,10 @@ namespace Orleans.EventSourcing
         {
             if (unpublishedEvents.Any())
             {
-                await _eventStream.OnNextBatchAsync(unpublishedEvents);
+                if (PublishEventOnStream)
+                {
+                    await _eventStream.OnNextBatchAsync(unpublishedEvents);
+                }
                 await _eventStore.DeletePublishedAsync(_key, unpublishedEvents.Select(x => x.Version));
             }
         }
